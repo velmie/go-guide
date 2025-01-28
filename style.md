@@ -5,7 +5,7 @@
 
 <!-- markdownlint-disable MD033 -->
 
-# Uber Go Style Guide
+# Go Style Guide
 
 - [Introduction](#introduction)
 - [Guidelines](#guidelines)
@@ -17,6 +17,7 @@
   - [Defer to Clean Up](#defer-to-clean-up)
   - [Channel Size is One or None](#channel-size-is-one-or-none)
   - [Start Enums at One](#start-enums-at-one)
+  - [String() for enums](#string-for-enums)
   - [Use `"time"` to handle time](#use-time-to-handle-time)
   - [Errors](#errors)
     - [Error Types](#error-types)
@@ -70,7 +71,6 @@
 - [Patterns](#patterns)
   - [Test Tables](#test-tables)
   - [Functional Options](#functional-options)
-- [Linting](#linting)
 
 ## Introduction
 
@@ -79,33 +79,9 @@ misnomer, since these conventions cover far more than just source file
 formatting—gofmt handles that for us.
 
 The goal of this guide is to manage this complexity by describing in detail the
-Dos and Don'ts of writing Go code at Uber. These rules exist to keep the code
+Dos and Don'ts of writing Go code. These rules exist to keep the code
 base manageable while still allowing engineers to use Go language features
 productively.
-
-This guide was originally created by [Prashant Varanasi](https://github.com/prashantv) and [Simon Newton](https://github.com/nomis52) as
-a way to bring some colleagues up to speed with using Go. Over the years it has
-been amended based on feedback from others.
-
-This documents idiomatic conventions in Go code that we follow at Uber. A lot
-of these are general guidelines for Go, while others extend upon external
-resources:
-
-1. [Effective Go](https://go.dev/doc/effective_go)
-2. [Go Common Mistakes](https://go.dev/wiki/CommonMistakes)
-3. [Go Code Review Comments](https://go.dev/wiki/CodeReviewComments)
-
-We aim for the code samples to be accurate for the two most recent minor versions
-of Go [releases](https://go.dev/doc/devel/release).
-
-All code should be error-free when run through `golint` and `go vet`. We
-recommend setting up your editor to:
-
-- Run `goimports` on save
-- Run `golint` and `go vet` to check for errors
-
-You can find information in editor support for Go tools here:
-https://go.dev/wiki/IDEsAndTextEditorPlugins
 
 ## Guidelines
 
@@ -469,6 +445,35 @@ snapshot := stats.Snapshot()
 </td></tr>
 </tbody></table>
 
+#### Always return a slice if a function modifies one
+
+<table>
+<thead><tr><th>Bad</th> <th>Good</th></tr></thead>
+<tbody>
+<tr>
+<td>
+
+```go
+func Add(trips []int) {
+    trips = append(trips, 1)
+}
+```
+
+</td>
+<td>
+
+```go
+func Add(trips []int) []int {
+    return append(trips, 1)
+}
+```
+
+</td>
+</tr>
+
+</tbody>
+</table>
+
 ### Defer to Clean Up
 
 Use defer to clean up resources such as files and locks.
@@ -592,6 +597,8 @@ const (
 There are cases where using the zero value makes sense, for example when the
 zero value case is the desirable default behavior.
 
+Example 1:
+
 ```go
 type LogOutput int
 
@@ -604,7 +611,61 @@ const (
 // LogToStdout=0, LogToFile=1, LogToRemote=2
 ```
 
-<!-- TODO: section on String methods for enums -->
+Example 2:
+
+```go
+type CardType int
+
+const (
+  CardType_UNDEFINED CardType = iota
+  CardType_PLASTIC
+  CardType_VIRTUAL
+)
+
+// CardType_UNDEFINED=0, CardType_PLASTIC=1, CardType_VIRTUAL=2
+```
+
+---
+
+**NOTE**
+
+You also can use the package https://github.com/abice/go-enum.
+
+---
+
+### String() for enums
+
+Prefer to implement the `String()` method for custom enum types.
+
+```go
+type CardType int
+
+const (
+    CardType_UNDEFINED CardType = iota
+    CardType_PLASTIC
+    CardType_VIRTUAL
+)
+
+func (s CardType) String() string {
+    switch s {
+    case CardType_PLASTIC:
+        return "plastic"
+    case CardType_VIRTUAL:
+        return "virtual"
+    }
+	
+    return "undefined"
+}
+
+```
+
+---
+
+**NOTE**
+
+You also can use the package https://github.com/abice/go-enum.
+
+---
 
 ### Use `"time"` to handle time
 
@@ -2150,8 +2211,6 @@ See [Wait for goroutines to exit](#wait-for-goroutines-to-exit).
 
 ## Performance
 
-Performance-specific guidelines apply only to the hot path.
-
 ### Prefer strconv over fmt
 
 When converting primitives to/from strings, `strconv` is faster than
@@ -2568,8 +2627,9 @@ func (c *client) request() {
 
 There should be two import groups:
 
-- Standard library
-- Everything else
+- Standard(builtin) library
+- External packages
+- Internal packages
 
 This is the grouping applied by goimports by default.
 
@@ -2584,6 +2644,7 @@ import (
   "os"
   "go.uber.org/atomic"
   "golang.org/x/sync/errgroup"
+  "your-project/internal/package"
 )
 ```
 
@@ -2596,6 +2657,8 @@ import (
 
   "go.uber.org/atomic"
   "golang.org/x/sync/errgroup"
+
+  "your-project/internal/package"
 )
 ```
 
@@ -3413,7 +3476,7 @@ k := User{
 </td></tr>
 </tbody></table>
 
-Exception: Field names *may* be omitted in test tables when there are 3 or
+Exception #1: Field names *may* be omitted in test tables when there are 3 or
 fewer fields.
 
 ```go
@@ -3425,6 +3488,48 @@ tests := []struct{
   {Subtract, "subtract"},
 }
 ```
+
+Exception #2: Field names *should* be omitted in function-constructor
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+
+type Consumer struct {
+  logger string
+  svc    string
+}
+
+func NewConsumer(logger string, svc string) *Consumer {
+  return &Consumer{
+    logger: logger,
+    svc: svc,
+  }
+}
+
+```
+
+</td><td>
+
+```go
+type Consumer struct {
+  logger string
+  svc    string
+}
+
+func NewConsumer(logger string, svc string) *Consumer {
+  return &Consumer{
+    logger,
+    svc,
+  }
+}
+```
+
+</td></tr>
+</tbody></table>
 
 #### Omit Zero Value Fields in Structs
 
@@ -4081,29 +4186,3 @@ See also,
 
 <!-- TODO: replace this with parameter structs and functional options, when to
 use one vs other -->
-
-## Linting
-
-More importantly than any "blessed" set of linters, lint consistently across a
-codebase.
-
-We recommend using the following linters at a minimum, because we feel that they
-help to catch the most common issues and also establish a high bar for code
-quality without being unnecessarily prescriptive:
-
-- [errcheck](https://github.com/kisielk/errcheck) to ensure that errors are handled
-- [goimports](https://pkg.go.dev/golang.org/x/tools/cmd/goimports) to format code and manage imports
-- [golint](https://github.com/golang/lint) to point out common style mistakes
-- [govet](https://pkg.go.dev/cmd/vet) to analyze code for common mistakes
-- [staticcheck](https://staticcheck.dev) to do various static analysis checks
-
-### Lint Runners
-
-We recommend [golangci-lint](https://github.com/golangci/golangci-lint) as the go-to lint runner for Go code, largely due
-to its performance in larger codebases and ability to configure and use many
-canonical linters at once. This repo has an example [.golangci.yml](https://github.com/uber-go/guide/blob/master/.golangci.yml) config file
-with recommended linters and settings.
-
-golangci-lint has [various linters](https://golangci-lint.run/usage/linters/) available for use. The above linters are
-recommended as a base set, and we encourage teams to add any additional linters
-that make sense for their projects.
