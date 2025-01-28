@@ -27,7 +27,7 @@ k := User{
 </td></tr>
 </tbody></table>
 
-Exception: Field names *may* be omitted in test tables when there are 3 or
+Exception #1: Field names *may* be omitted in test tables when there are 3 or
 fewer fields.
 
 ```go
@@ -39,3 +39,45 @@ tests := []struct{
   {Subtract, "subtract"},
 }
 ```
+
+Exception #2: Field names *should* be omitted in function-constructor
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+
+type Consumer struct {
+  logger string
+  svc    string
+}
+
+func NewConsumer(logger string, svc string) *Consumer {
+  return &Consumer{
+    logger: logger,
+    svc: svc,
+  }
+}
+
+```
+
+</td><td>
+
+```go
+type Consumer struct {
+  logger string
+  svc    string
+}
+
+func NewConsumer(logger string, svc string) *Consumer {
+  return &Consumer{
+    logger,
+    svc,
+  }
+}
+```
+
+</td></tr>
+</tbody></table>

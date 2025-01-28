@@ -1,4 +1,4 @@
-# Uber Go Style Guide
+# Go Style Guide
 
 - [Introduction](intro.md)
 - Guidelines
@@ -10,6 +10,7 @@
   - [Defer to Clean Up](defer-clean.md)
   - [Channel Size is One or None](channel-size.md)
   - [Start Enums at One](enum-start.md)
+  - [String() for enums](enum-string.md)
   - [Use `"time"` to handle time](time.md)
   - Errors
     - [Error Types](error-type.md)
@@ -63,4 +64,3 @@
 - Patterns
   - [Test Tables](test-table.md)
   - [Functional Options](functional-option.md)
-- [Linting](lint.md)
