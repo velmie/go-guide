@@ -103,4 +103,31 @@ snapshot := stats.Snapshot()
 </td></tr>
 </tbody></table>
 
+## Always return a slice if a function modifies one
 
+<table>
+<thead><tr><th>Bad</th> <th>Good</th></tr></thead>
+<tbody>
+<tr>
+<td>
+
+```go
+func Add(trips []int) {
+    trips = append(trips, 1)
+}
+```
+
+</td>
+<td>
+
+```go
+func Add(trips []int) []int {
+    return append(trips, 1)
+}
+```
+
+</td>
+</tr>
+
+</tbody>
+</table>

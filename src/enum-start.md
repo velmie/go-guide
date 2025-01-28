@@ -41,6 +41,8 @@ const (
 There are cases where using the zero value makes sense, for example when the
 zero value case is the desirable default behavior.
 
+Example 1:
+
 ```go
 type LogOutput int
 
@@ -53,4 +55,23 @@ const (
 // LogToStdout=0, LogToFile=1, LogToRemote=2
 ```
 
-<!-- TODO: section on String methods for enums -->
+Example 2:
+
+```go
+type CardType int
+
+const (
+  CardType_UNDEFINED CardType = iota
+  CardType_PLASTIC
+  CardType_VIRTUAL
+)
+
+// CardType_UNDEFINED=0, CardType_PLASTIC=1, CardType_VIRTUAL=2
+```
+
+---
+**NOTE**
+
+You also can use the package <https://github.com/abice/go-enum>.
+
+---
