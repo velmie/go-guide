@@ -1,7 +1,6 @@
 # Avoid Naked Parameters
 
-Naked parameters in function calls can hurt readability. Add C-style comments
-(`/* ... */`) for parameter names when their meaning is not obvious.
+Prefer using (Functional Options)[#functional-options] instead of naked parameters or split your function into a few ones:
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -9,41 +8,21 @@ Naked parameters in function calls can hurt readability. Add C-style comments
 <tr><td>
 
 ```go
-// func printInfo(name string, isLocal, done bool)
+// func getInfo(name string, useCache bool)
 
-printInfo("foo", true, true)
+getInfo("foo", true)
 ```
 
 </td><td>
 
 ```go
-// func printInfo(name string, isLocal, done bool)
+// func getInfo(name string)
 
-printInfo("foo", true /* isLocal */, true /* done */)
+// func getInfoUsingCache(name string)
+
+getInfo("foo")
+getInfoUsingCache("foo")
 ```
 
 </td></tr>
 </tbody></table>
-
-Better yet, replace naked `bool` types with custom types for more readable and
-type-safe code. This allows more than just two states (true/false) for that
-parameter in the future.
-
-```go
-type Region int
-
-const (
-  UnknownRegion Region = iota
-  Local
-)
-
-type Status int
-
-const (
-  StatusReady Status = iota + 1
-  StatusDone
-  // Maybe we will have a StatusInProgress in the future.
-)
-
-func printInfo(name string, region Region, status Status)
-```
