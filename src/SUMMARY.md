@@ -29,7 +29,6 @@
   - [Use field tags in marshaled structs](struct-tag.md)
   - [Don't fire-and-forget goroutines](goroutine-forget.md)
     - [Wait for goroutines to exit](goroutine-exit.md)
-    - [No goroutines in `init()`](goroutine-init.md)
 - [Performance](performance.md)
   - [Prefer strconv over fmt](strconv.md)
   - [Avoid repeated string-to-byte conversions](string-byte-slice.md)
