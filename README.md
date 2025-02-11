@@ -5,6 +5,10 @@ patterns and conventions used in Go code at Velmie. This guide is based on the [
 
 See [Velmie Go Style Guide](style.md) for the style guide.
 
-## Contributing
+### Contributing
 
 Make changes according to the [guide](CONTRIBUTING.md) and make a pull-request. The CI generates the result `style.md` file.
+
+## `golangci-lint` configuration
+
+See the `.golangci.yml` file and [linter coverage](LINTER.md).
