@@ -1,4 +1,4 @@
-# Linter coverage
+# Lint coverage
 
 | Section     | Subsection                                         | Coverage           |
 |-------------|----------------------------------------------------|--------------------|
