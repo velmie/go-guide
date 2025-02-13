@@ -11,4 +11,4 @@ Make changes according to the [guide](CONTRIBUTING.md) and make a pull-request. 
 
 ## `golangci-lint` configuration
 
-See the `.golangci.yml` file and [linter coverage](LINTER.md).
+See the `.golangci.yml` file and [lint coverage](LINT.md).
