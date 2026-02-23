@@ -3,7 +3,7 @@ issues:
   #new-from-rev: HEAD
 linters:
   default: none
-  # The list of linter based on the v2.6.2
+  # The list of linter based on the v2.10.1
   # See the full list https://golangci-lint.run/usage/linters/
   enable:
     - asasalint
@@ -113,6 +113,9 @@ linters:
       - legacy
       - std-error-handling
     rules:
+      - text: "do not define dynamic errors, use wrapped static errors instead"
+        linters:
+          - err113
       - linters:
           - dupl
           - err113
